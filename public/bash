@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+#
+#  Copyright 2019 The OpenThread Authors
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+set -e +o pipefail
+
+readonly SIZE_REPORT_FILE=/tmp/size_report
+
+size_report_init()
+{
+    [[ "${TRAVIS_PULL_REQUEST}" != false ]]
+
+    TRAVIS_BRANCH_SHA=$(git -C ${TRAVIS_BUILD_DIR} rev-parse ${TRAVIS_BRANCH})
+
+    REPO_SLUGS=(${TRAVIS_REPO_SLUG//\// })
+
+    cat > "${SIZE_REPORT_FILE}" <<EOF
+{
+  "name": "$1",
+  "number": ${TRAVIS_PULL_REQUEST},
+  "commit_id": "${TRAVIS_PULL_REQUEST_SHA}",
+  "base_commit_id": "${TRAVIS_BRANCH_SHA}",
+  "base_branch": "${TRAVIS_BRANCH}",
+  "event": "APPROVE",
+  "owner": "${REPO_SLUGS[0]}",
+  "repo": "${REPO_SLUGS[1]}",
+  "data": [{
+EOF
+}
+
+size_report_size()
+{
+    [[ "${TRAVIS_PULL_REQUEST}" != false ]]
+
+    name="$(basename $1)"
+
+    [[ "${name}" = "$(basename $2)" ]] || return
+
+    cat >> "${SIZE_REPORT_FILE}" <<EOF
+    "name": "$name",
+    "type": "size",
+    "base": [$(size "$1" | awk 'NR==2{ printf "%d,%d,%d,%d",$1,$2,$3,$4}')],
+    "pr": [$(size "$2" | awk 'NR==2{ printf "%d,%d,%d,%d",$1,$2,$3,$4}')]
+  },{
+EOF
+}
+
+size_report_post()
+{
+    [[ "${TRAVIS_PULL_REQUEST}" != false ]] || return 0
+
+    echo -e "  }]\n}" >> "${SIZE_REPORT_FILE}"
+    curl -X POST \
+        -H "Content-Type: application/json" \
+        -d @"${SIZE_REPORT_FILE}" \
+        "${SIZE_REPORT_URL}/review"
+}
+
+main()
+{
+    case $1 in
+        init)
+            shift
+            size_report_init "$@"
+            ;;
+
+        size)
+            shift
+            size_report_size "$@"
+            ;;
+
+        post)
+            size_report_post
+            ;;
+    esac
+}
+
+main "$@"
