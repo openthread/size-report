@@ -24,8 +24,6 @@ size_report_init()
 {
     [[ "${TRAVIS_PULL_REQUEST}" != false ]]
 
-    TRAVIS_BRANCH_SHA=$(git -C ${TRAVIS_BUILD_DIR} rev-parse ${TRAVIS_BRANCH})
-
     REPO_SLUGS=(${TRAVIS_REPO_SLUG//\// })
 
     cat > "${SIZE_REPORT_FILE}" <<EOF
@@ -33,7 +31,7 @@ size_report_init()
   "name": "$1",
   "number": ${TRAVIS_PULL_REQUEST},
   "commit_id": "${TRAVIS_PULL_REQUEST_SHA}",
-  "base_commit_id": "${TRAVIS_BRANCH_SHA}",
+  "base_commit_id": "${MERGE_BASE_SHA}",
   "base_branch": "${TRAVIS_BRANCH}",
   "event": "APPROVE",
   "owner": "${REPO_SLUGS[0]}",
