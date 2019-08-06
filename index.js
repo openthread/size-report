@@ -30,7 +30,7 @@ function sign(n) {
 }
 %>
 # Size Report of **<%= name %>**
-> Merging [#<%= number %>](https://github.com/<%= owner %>/<%= repo %>/commit/<%= commit_id %>) into [<%= base_branch %>](https://github.com/<%= owner %>/<%= repo %>/commit/<%= base_commit_id %>).
+> Merging [#<%= number %>](https://github.com/<%= owner %>/<%= repo %>/commit/<%= commit_id %>) into [<%= base_branch %>](https://github.com/<%= owner %>/<%= repo %>/commit/<%= base_commit_id %>)(<%= base_commit_id %>).
 
 |  name  |  branch  |  text  | data  | bss  | total |
 | :----: | :------: | -----: | ----: | ---: | ----: |
@@ -52,14 +52,28 @@ function sign(n) {
 
   router.post('/:installationId/review', async (req, res) => {
     const github = await app.auth(req.params.installationId)
-    const {status} = await github.pullRequests.createReview({
+    let response = await github.issues.listComments({
       "number": req.body.number,
-      "commit_id": req.body.commit_id,
-      "event": "APPROVE",
       "owner": req.body.owner,
       "repo": req.body.repo,
-      "body": render(req.body)
-    })
-    res.sendStatus(status)
+    });
+
+    let params = {
+        "number": req.body.number,
+        "owner": req.body.owner,
+        "repo": req.body.repo,
+        "body": render(req.body)
+    }
+
+    let comment = response.data.find(review => review.user.login == 'size-report[bot]')
+
+    if (comment) {
+      params.comment_id = comment.id;
+      response = await github.issues.updateComment(params);
+    } else {
+      response = await github.issues.createComment(params);
+    }
+
+    return res.sendStatus(response.status)
   })
 }
