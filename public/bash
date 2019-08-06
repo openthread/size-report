@@ -33,7 +33,6 @@ size_report_init()
   "commit_id": "${TRAVIS_PULL_REQUEST_SHA}",
   "base_commit_id": "${MERGE_BASE_SHA}",
   "base_branch": "${TRAVIS_BRANCH}",
-  "event": "APPROVE",
   "owner": "${REPO_SLUGS[0]}",
   "repo": "${REPO_SLUGS[1]}",
   "data": [{
