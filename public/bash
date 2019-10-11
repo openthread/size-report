@@ -50,8 +50,8 @@ size_report_size()
     cat >> "${SIZE_REPORT_FILE}" <<EOF
     "name": "$name",
     "type": "size",
-    "base": [$(size "$1" | awk 'NR==2{ printf "%d,%d,%d,%d",$1,$2,$3,$4}')],
-    "pr": [$(size "$2" | awk 'NR==2{ printf "%d,%d,%d,%d",$1,$2,$3,$4}')]
+    "base": [$(size "$1" | awk '{text+=$1} {bss+=$2} {data+=$3} {total+=$4} END {printf "%d,%d,%d,%d", text, bss, data, total}')],
+    "pr": [$(size "$2" | awk '{text+=$1} {bss+=$2} {data+=$3} {total+=$4} END {printf "%d,%d,%d,%d", text, bss, data, total}')]
   },{
 EOF
 }
