@@ -22,27 +22,34 @@ readonly SIZE_REPORT_FILE=/tmp/size_report
 
 size_report_init()
 {
-    [[ "${TRAVIS_PULL_REQUEST}" != false ]]
-
-    REPO_SLUGS=(${TRAVIS_REPO_SLUG//\// })
+    if [[ "${GITHUB_WORKFLOW}" ]]; then
+      # pattern of GITHUB_REF: refs/pull/:prNumber/merge
+      local number=$(cut -d/ -f3 <<< "${GITHUB_REF}")
+      local commit_id="${GITHUB_SHA}"
+      local base_branch="${OT_BASE_BRANCH}"
+      local repo_slugs=(${GITHUB_REPOSITORY//\// })
+    else
+      local number="${TRAVIS_PULL_REQUEST}"
+      local commit_id="${TRAVIS_PULL_REQUEST_SHA}"
+      local base_branch="${TRAVIS_BRANCH}"
+      local repo_slugs=(${TRAVIS_REPO_SLUG//\// })
+    fi
 
     cat > "${SIZE_REPORT_FILE}" <<EOF
 {
   "name": "$1",
-  "number": ${TRAVIS_PULL_REQUEST},
-  "commit_id": "${TRAVIS_PULL_REQUEST_SHA}",
-  "base_commit_id": "${MERGE_BASE_SHA}",
-  "base_branch": "${TRAVIS_BRANCH}",
-  "owner": "${REPO_SLUGS[0]}",
-  "repo": "${REPO_SLUGS[1]}",
+  "number": "${number}",
+  "commit_id": "${pull_request_sha}",
+  "base_commit_id": "${OT_MERGE_BASE_SHA}",
+  "base_branch": "${base_branch}",
+  "owner": "${repo_slugs[0]}",
+  "repo": "${repo_slugs[1]}",
   "data": [{
 EOF
 }
 
 size_report_size()
 {
-    [[ "${TRAVIS_PULL_REQUEST}" != false ]]
-
     name="$(basename $1)"
 
     [[ "${name}" = "$(basename $2)" ]] || return
@@ -58,8 +65,6 @@ EOF
 
 size_report_post()
 {
-    [[ "${TRAVIS_PULL_REQUEST}" != false ]] || return 0
-
     echo -e "  }]\n}" >> "${SIZE_REPORT_FILE}"
     curl -X POST \
         -H "Content-Type: application/json" \
