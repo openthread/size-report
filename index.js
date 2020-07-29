@@ -40,40 +40,32 @@ function sign(n) {
 |  | +/- | <%= sign(diff.pr[0] - diff.base[0]) %> | <%= sign(diff.pr[1] - diff.base[1]) %> | <%= sign(diff.pr[2] - diff.base[2]) %> | <%= sign(diff.pr[3] - diff.base[3]) %> |
 <% }}) -%>
 `)
-
   // Use any middleware
   router.use(require('express').json())
 
-  router.get('/:installationId/bash', async (req, res) => {
-    res.sendFile('bash', {
-      root: path.join(__dirname, 'public'),
+  app.on('push', async context => {
+    // Code was pushed to the repo, log the response
+    app.log(context)
+    const exec = require('child_process').exec;
+
+    var mainPath =  path.join(process.cwd(),'main.py'); 
+
+    clone_url = context.payload.repository["clone_url"] 
+    var compare_url = context.payload["compare"]
+    var repo_name = context.payload.repository["name"] 
+
+    console.log(clone_url);
+    console.log(compare_url);
+    console.log(repo_name);
+
+    var args = clone_url +" " + compare_url + " " + repo_name
+
+    exec('python3' + ' '  + mainPath + ' ' + args ,function(error,stdout,stderr){
+        if(error) {
+            console.info('stderr : '+stderr);
+        }
+        console.log('exec: ' + stdout);
     })
   })
 
-  router.post('/:installationId/review', async (req, res) => {
-    const github = await app.auth(req.params.installationId)
-    let response = await github.issues.listComments({
-      "number": req.body.number,
-      "owner": req.body.owner,
-      "repo": req.body.repo,
-    });
-
-    let params = {
-        "number": req.body.number,
-        "owner": req.body.owner,
-        "repo": req.body.repo,
-        "body": render(req.body)
-    }
-
-    let comment = response.data.find(review => review.user.login == 'size-report[bot]')
-
-    if (comment) {
-      params.comment_id = comment.id;
-      response = await github.issues.updateComment(params);
-    } else {
-      response = await github.issues.createComment(params);
-    }
-
-    return res.sendStatus(response.status)
-  })
 }

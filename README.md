@@ -5,8 +5,10 @@
 ## Setup
 
 ```sh
+
 # Install dependencies
 npm install
+pip install -r requirements.txt
 
 # Run the bot
 npm start

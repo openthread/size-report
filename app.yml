@@ -39,8 +39,8 @@ default_events:
 # - pull_request_review
 # - pull_request_review_comment
 # - push
-# - release
-# - repository
+# - release 
+- repository
 # - repository_import
 # - status
 # - team
@@ -129,7 +129,7 @@ default_permissions:
 name: Size Report
 
 # The homepage of your GitHub App.
-# url: https://example.com/
+url: https://example.com/
 
 # A description of the GitHub App.
 description: An app that generates size reports for pull requests.
