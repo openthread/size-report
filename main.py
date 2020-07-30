@@ -34,4 +34,9 @@ if retcode != 0:
 # arm-none-eabi-readelf -S /tmp/ot-size-report/b/output/nrf52840/bin/ot-cli-ftd
 retcode, output = subprocess.getstatusoutput("cd ../" + repo_name + "\n" + " ./script/check-size nrf52840")
 print(output)
- 
+if retcode != 0:
+    sys.exit("check-size failed")
+with open('/tmp/size-report') as f:
+    lines = f.readlines()
+    print(lines)
+
