@@ -7,8 +7,10 @@ import subprocess
 
 print (sys.argv[0])
 clone_url = sys.argv[1]
+#https://github.com/chris98122/openthread.git
 compare_url = sys.argv[2]
 repo_name = sys.argv[3]
+#openthread
 
 last_commit_id = ""
 
@@ -31,3 +33,5 @@ if retcode != 0:
 # run  ./script/code-size nrf52840  : already install arm-none-eabi-gcc
 # arm-none-eabi-readelf -S /tmp/ot-size-report/b/output/nrf52840/bin/ot-cli-ftd
 retcode, output = subprocess.getstatusoutput("cd ../" + repo_name + "\n" + " ./script/check-size nrf52840")
+print(output)
+ 
