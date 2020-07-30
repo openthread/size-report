@@ -4,7 +4,6 @@ import sys
 import requests
 import os
 import subprocess
-
 print (sys.argv[0])
 clone_url = sys.argv[1]
 #https://github.com/chris98122/openthread.git
@@ -36,7 +35,25 @@ retcode, output = subprocess.getstatusoutput("cd ../" + repo_name + "\n" + " ./s
 print(output)
 if retcode != 0:
     sys.exit("check-size failed")
-with open('/tmp/size-report') as f:
-    lines = f.readlines()
-    print(lines)
 
+
+with open('/tmp/size_report') as f:
+    lines = f.readlines()
+    filename = ""
+    for line in lines:
+        splitted = line.split('|')
+        if (lines.index(line) - 2 ) % 3 == 0:
+            filename = splitted[1]
+        # if (lines.index(line) - 3 ) % 3 == 0:
+        commit_id = splitted[2]
+        text = splitted[3]
+        data = splitted[4]
+        bss = splitted[5]
+        total = splitted[6]
+
+        filechange = {"commit_id":commit_id,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
+        print(file_change) 
+
+
+
+#test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
