@@ -16,7 +16,7 @@ def retrieve_commit_data():
         if content_type != "application/json":
             return
         
-        data = request.get_json()
+        data = request.get_json()["commits"]
         db.execute("insert into commitinfo value({},{},{})".format(data["commit_id"], data["timestamp"], data["parent_id"]))
 
         for item in data["code_size"]:
