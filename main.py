@@ -46,17 +46,17 @@ with open('/tmp/size_report') as f:
     filename = ""
     for line in lines:
         splitted = line.split('|')
-        text = splitted[3]
-        data = splitted[4]
-        bss = splitted[5]
-        total = splitted[6]
+        text = int(splitted[3].strip())
+        data = int(splitted[4].strip())
+        bss = int(splitted[5].strip())
+        total = int(splitted[6].strip())
 
         if (lines.index(line) - 2 ) % 3 == 0:
-            filename = splitted[1]
+            filename = splitted[1].strip()
             parent_filechange = {"commit_id":parent_commit_id,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
             print(parent_filechange) 
 
-        if (lines.index(line) - 3 ) % 3 == 0:
+        if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) !=0 :
             filechange = {"commit_id":newest_commit_id,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
             print(filechange) 
         
