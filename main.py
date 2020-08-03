@@ -51,6 +51,9 @@ print(output)
 if retcode != 0:
     print("check-size failed")
 
+
+parent_code_size =[]
+code_size = []
 with open('/tmp/size_report') as f:
     lines = f.readlines()
     filename = ""
@@ -66,11 +69,17 @@ with open('/tmp/size_report') as f:
 
         if (lines.index(line) - 2 ) % 3 == 0:
             filename = splitted[1].strip()
-            parent_filechange = {"commit_id":parent_commit_id, "timestamp":parent_commit_timestamp,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
-            print(parent_filechange) 
-
-        if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) !=0 :
-            filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
-            print(filechange) 
+            parent_code_size.append({filename:{"text":text , "data" :data ,"bss":bss, "total":total }})
+            
+        if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) != 0:
+            code_size.append({filename:{"text":text , "data" :data ,"bss":bss, "total":total }})
+            
         
+
+parent_filechange = {"commit_id":parent_commit_id, "timestamp":parent_commit_timestamp,"code_size":parent_code_size}
+print(parent_filechange) 
+
+filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,"code_size":code_size }
+print(filechange) 
+
 #test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
