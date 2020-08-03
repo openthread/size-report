@@ -13,6 +13,8 @@ repo_name = sys.argv[3]
 
 newest_commit_id = ""
 parent_commit_id = ""
+newest_commit_timestamp = ""
+parent_commit_timestamp = ""
 
 retcode, output = subprocess.getstatusoutput("cd .. \n" + "git clone " + clone_url)
 print("git clone retcode is: %s" % retcode);#0表示执行成功,否则表示失败
@@ -32,6 +34,14 @@ if retcode != 0:
         print(output)
         print("parent_commit_id is: %s" % parent_commit_id)
 
+        retcode, newest_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ct HEAD")
+        print(output)
+        print("newest_commit_timestamp is: %s" % newest_commit_timestamp)
+            
+        retcode, parent_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ct HEAD^")
+        print(output)
+        print("parent_commit_timestamp is: %s" % parent_commit_timestamp)
+
 # SIZE_REPORT_URL =http://localhost:3000/  
 # compile : make -f examples/Makefile-nrf52840 "
 # run  ./script/code-size nrf52840  : already install arm-none-eabi-gcc
@@ -46,18 +56,21 @@ with open('/tmp/size_report') as f:
     filename = ""
     for line in lines:
         splitted = line.split('|')
-        text = int(splitted[3].strip())
-        data = int(splitted[4].strip())
-        bss = int(splitted[5].strip())
-        total = int(splitted[6].strip())
+        try:
+            text = int(splitted[3].strip())
+            data = int(splitted[4].strip())
+            bss = int(splitted[5].strip())
+            total = int(splitted[6].strip())
+        except Exception as ex:
+            continue
 
         if (lines.index(line) - 2 ) % 3 == 0:
             filename = splitted[1].strip()
-            parent_filechange = {"commit_id":parent_commit_id,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
+            parent_filechange = {"commit_id":parent_commit_id, "timestamp":parent_commit_timestamp,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
             print(parent_filechange) 
 
         if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) !=0 :
-            filechange = {"commit_id":newest_commit_id,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
+            filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,""code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
             print(filechange) 
         
 #test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
