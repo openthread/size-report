@@ -70,7 +70,7 @@ with open('/tmp/size_report') as f:
             print(parent_filechange) 
 
         if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) !=0 :
-            filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,""code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
+            filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,"code_size":{filename:{"text":text , "data" :data ,"bss":bss, "total":total }}}
             print(filechange) 
         
 #test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
