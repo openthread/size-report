@@ -3,8 +3,8 @@ drop table if exists filechange;
 
 create table commitinfo (
     id varchar primary key not null,
-    parent_id varchar not null,
-    created_at timestamp not null default CURRENT_TIMESTAMP
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    parent_id varchar,
     /*reponame  varchar, # to be revised: is it needed? */
     /*message varchar not null default '', # to be revised: is it needed? */
     /*revision varchar not null primary key, 
