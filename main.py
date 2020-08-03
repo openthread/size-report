@@ -34,11 +34,13 @@ if retcode != 0:
         print(output)
         print("parent_commit_id is: %s" % parent_commit_id)
 
-        retcode, newest_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ct HEAD")
+        retcode, newest_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD")
+        newest_commit_timestamp = newest_commit_timestamp.split('+')[0].strip()
         print(output)
         print("newest_commit_timestamp is: %s" % newest_commit_timestamp)
             
-        retcode, parent_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ct HEAD^")
+        retcode, parent_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD^")
+        parent_commit_timestamp = parent_commit_timestamp.split('+')[0].strip()
         print(output)
         print("parent_commit_timestamp is: %s" % parent_commit_timestamp)
 
