@@ -5,7 +5,7 @@ from backend.db import *
 
 app = current_app
 
-@app.route("/getcommit", methods=("GET","POST"))
+@app.route("/getcommit", methods=("POST",))
 def retrieve_commit_data():
     db = get_db()
 
@@ -43,42 +43,108 @@ def retrieve_commit_data():
                         int(item.value()["total"]))
 
 
-# 假定一秒内只有一条commit。可能后续需要修改
-@app.route("/latestcommit", methods=("GET"))
+@app.route("/latestcommit", methods=("GET",))
 def latest_commit_id():
     db = get_db()
 
     return db.execute("select id from commitinfo"
                       "order by timestamp desc").fetchone()["id"]
 
-
-
-# 找到指定id对应的commit信息。不清楚前端请求的格式，需要修改。
-# 这个函数需要提供commit_id信息，可能需要添加代码解析前端的post。
-@app.route("/commitinfo", methods=("GET", "POST"))
-def get_parent_commit_info():
+# 返回最新的n条记录（暂定post的内容有n这一条，里面存了记录的数目
+# 返回格式是json（数组）
+@app.route("/ncommmitinfo", methods=("POST",))
+def get_n_commits():
     db = get_db()
 
-    basic_info = db.execute("select * from "
-                            "commitinfo where id = ?",
-                            (commit_id,),).fetchone()
+    if request.method == "POST":
+        content_type = request.headers["Content-type"]
+        charset = request.headers["charset"]
 
-    fileinfo = db.execute("select * from "
-                          "filechange where commit_id = ?",
-                          (commit_id,),).fetchall()
-    
-    files = dict()
+        if content_type != "application/json":
+            return
+        
+        n = request.get_json()["n"]
 
-    for item in fileinfo:
-        files[item["file_name"]] = {"text": item["textsize"], 
-                                    "data": item["datasize"], 
-                                    "bss": item["bsssize"], 
-                                    "total": item["totalsize"]}
+        if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < n:
+            basic_info = db.execute("select * from commitinfo order by create_at desc").fetchall()
 
-    return jsonify(
-        commit_id=basic_info["commit_id"],
-        parent_id=basic_info["parent_id"],
-        created_time=basic_info["created_at"],
-        code=files
-    )
+            return_value = []
+            
+            for it in basic_info:
+                commitid = it[0]
+                filesinfo = db.execute("select * from filechange where commit_id = ?", (commitid,),).fetchall()
+
+                files = dict()
+                
+                for item in filesinfo:
+                    files[item["file_name"]] = {"text": item["textsize"], 
+                                                "data": item["datasize"], 
+                                                "bss": item["bsssize"], 
+                                                "total": item["totalsize"]}
+
+                commit_info = {"commit_id": commitid, "parent_id": it[2], "created_time": it[1], "code": files}
+                return_value.append(commit_info)
+
+            return jsonify(return_value)
+
+        else:
+            basic_info = db.execute("select * from commitinfo order by create_at desc").fetchall()[:n]
+
+            return_value = []
+            
+            for it in basic_info:
+                commitid = it[0]
+                filesinfo = db.execute("select * from filechange where commit_id = ?", (commitid,),).fetchall()
+
+                files = dict()
+                
+                for item in filesinfo:
+                    files[item["file_name"]] = {"text": item["textsize"], 
+                                                "data": item["datasize"], 
+                                                "bss": item["bsssize"], 
+                                                "total": item["totalsize"]}
+
+                commit_info = {"commit_id": commitid, "parent_id": it[2], "created_time": it[1], "code": files}
+                return_value.append(commit_info)
+
+            return jsonify(return_value)
+
+
+
+# 找到指定id对应的commit信息。暂定前端post返回json，有commit_id一项
+@app.route("/commitinfo", methods=("GET", "POST"))
+def get_commit_info():
+    db = get_db()
+
+    if request.method == "POST":
+        content_type = request.headers["Content-type"]
+        charset = request.headers["charset"]
+
+        if content_type != "application/json":
+            return
+        
+        commit_id = request.get_json()["commit_id"]
+
+        basic_info = db.execute("select * from "
+                                "commitinfo where id = ?",
+                                (commit_id,),).fetchone()
+
+        fileinfo = db.execute("select * from "
+                            "filechange where commit_id = ?",
+                            (commit_id,),).fetchall()
+        
+        files = dict()
+
+        for item in fileinfo:
+            files[item["file_name"]] = {"text": item["textsize"], 
+                                        "data": item["datasize"], 
+                                        "bss": item["bsssize"], 
+                                        "total": item["totalsize"]}
+
+        return jsonify(
+            commit_id=basic_info["commit_id"],
+            parent_id=basic_info["parent_id"],
+            created_time=basic_info["created_at"],
+            code=files
+        )
 
