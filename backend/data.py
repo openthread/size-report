@@ -50,7 +50,7 @@ def latest_commit_id():
     return db.execute("select id from commitinfo"
                       "order by timestamp desc").fetchone()["id"]
 
-# 返回最新的n条记录（暂定post的内容有n这一条，里面存了记录的数目
+# 返回最新的n条记录（暂定post的内容有n_commit_info这一条，里面存了记录的数目
 # 返回格式是json（数组）
 @app.route("/ncommmitinfo", methods=("POST",))
 def get_n_commits():
@@ -63,7 +63,7 @@ def get_n_commits():
         if content_type != "application/json":
             return
         
-        n = request.get_json()["n"]
+        n = request.get_json()["n_commit_info"]
 
         if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < n:
             basic_info = db.execute("select * from commitinfo order by create_at desc").fetchall()
