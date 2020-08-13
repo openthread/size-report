@@ -32,8 +32,12 @@ def retrieve_commit_data():
         # print(commit, parent_commit)
         # print(commit["commit_id"], commit["timestamp"])
 
+        if db.execute("select * from commitinfo where id = ?", (commit["commit_id"],)).fetchall() != None:
+            return jsonify({"status": "OK"})
+
         db.execute("insert into commitinfo values('{}','{}','{}');".format(commit["commit_id"], commit["timestamp"], parent_commit["parent_commit_id"]))
-        # print("insert commit info successfully ", db.execute("select * from commitinfo").fetchall()[0])
+        db.commit()
+        # print("insert commit info successfully ", db.execute("select * from commitinfo").fetchall()[0][0], db.execute("select * from commitinfo").fetchall()[0][1], db.execute("select * from commitinfo").fetchall()[0][2])
 
         # print(commit["code_size"])
 
@@ -47,12 +51,14 @@ def retrieve_commit_data():
                         int(dict(list(item.values())[0])["data"]),
                         int(dict(list(item.values())[0])["bss"]),
                         int(dict(list(item.values())[0])["total"])))
+            db.commit()
 
-        print("insert file info into filechange successfully ", db.execute("select * from filechange").fetchall()[0])
+        # print("insert file info into filechange successfully ", db.execute("select * from filechange").fetchall()[0])
 
         # 若此条commit的上一条commit不在数据库中，插入这一条commit的记录。
         if db.execute("select * from commitinfo where id = ?", (parent_commit["parent_commit_id"],), ).fetchall() is None:
             db.execute("insert into commit info values('{}',{});".format(parent_commit["parent_commit_id"], parent_commit["parent_timestamp"]))
+            db.commit()
 
             for item in parent_commit["parent_code_size"]:
                 db.execute("insert into filechange values('{}', '{}',{},{},{},{});".format
@@ -62,9 +68,10 @@ def retrieve_commit_data():
                         int(dict(list(item.values())[0])["data"]),
                         int(dict(list(item.values())[0])["bss"]),
                         int(dict(list(item.values())[0])["total"])))
+                db.commit()
 
         # test
-        # print(db.execute("select * from commitinfo").fetchall())
+        # print(list(db.execute("select * from commitinfo").fetchall()))
         return jsonify({"status": "OK"})
 
 
@@ -72,11 +79,11 @@ def retrieve_commit_data():
 def latest_commit_id():
     db = get_db()
 
-    return jsonify(db.execute("select id from commitinfo order by created_at desc").fetchone()["id"])
+    return jsonify(db.execute("select id from commitinfo order by created_at desc").fetchone()[0])
 
 # 返回最新的n条记录（暂定post的内容有n_commit_info这一条，里面存了记录的数目
 # 返回格式是json（数组）
-@app.route("/ncommmitinfo", methods=("POST",))
+@app.route("/ncommitinfo", methods=("POST",))
 def get_n_commits():
     db = get_db()
 
@@ -91,8 +98,11 @@ def get_n_commits():
         
         n = json["n_commit_info"]
 
-        if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < n:
-            basic_info = db.execute("select * from commitinfo order by create_at desc").fetchall()
+        if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < int(n):
+            test_info = db.execute("select * from commitinfo").fetchall()
+            print(list(test_info))
+            basic_info = db.execute("select * from commitinfo order by created_at desc").fetchall()
+            print(list(basic_info))
 
             return_value = []
             
@@ -150,9 +160,10 @@ def get_commit_info():
             return
 
         json = request.get_json()
-        print(json)
+        # print(json)
         
         commit_id = json["commit_id"]
+        print(commit_id)
 
         basic_info = db.execute("select * from "
                                 "commitinfo where id = ?",
@@ -171,7 +182,7 @@ def get_commit_info():
                                         "total": item["totalsize"]}
 
         return jsonify(
-            commit_id=basic_info["commit_id"],
+            commit_id=basic_info["id"],
             parent_id=basic_info["parent_id"],
             created_time=basic_info["created_at"],
             code=files
