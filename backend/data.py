@@ -7,19 +7,17 @@ from flask import Blueprint
 
 app = Blueprint("data", __name__)
 
+# index.html是前端静态页面的名字，也就是webapp的入口点
 @app.route('/')
 def index():
     return render_template("index.html")
-    # return "Hello world"
 
 @app.route("/getcommit", methods=("POST",))
 def retrieve_commit_data():
-    # print("getting commit data")
     db = get_db()
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
@@ -29,21 +27,13 @@ def retrieve_commit_data():
         commit = json["commits"][0]
         parent_commit = json["commits"][1]
 
-        # print(commit, parent_commit)
-        # print(commit["commit_id"], commit["timestamp"])
-
         if db.execute("select * from commitinfo where id = ?", (commit["commit_id"],)).fetchall() != None:
             return jsonify({"status": "OK"})
 
         db.execute("insert into commitinfo values('{}','{}','{}');".format(commit["commit_id"], commit["timestamp"], parent_commit["parent_commit_id"]))
         db.commit()
-        # print("insert commit info successfully ", db.execute("select * from commitinfo").fetchall()[0][0], db.execute("select * from commitinfo").fetchall()[0][1], db.execute("select * from commitinfo").fetchall()[0][2])
-
-        # print(commit["code_size"])
 
         for item in commit["code_size"]:
-            # print(list(item.keys()))
-            # print(dict(list(item.values())[0]))
             db.execute("insert into filechange values('{}','{}',{},{},{},{});".format
                         (commit["commit_id"], 
                         list(item.keys())[0], 
@@ -52,8 +42,6 @@ def retrieve_commit_data():
                         int(dict(list(item.values())[0])["bss"]),
                         int(dict(list(item.values())[0])["total"])))
             db.commit()
-
-        # print("insert file info into filechange successfully ", db.execute("select * from filechange").fetchall()[0])
 
         # 若此条commit的上一条commit不在数据库中，插入这一条commit的记录。
         if db.execute("select * from commitinfo where id = ?", (parent_commit["parent_commit_id"],), ).fetchall() is None:
@@ -70,8 +58,6 @@ def retrieve_commit_data():
                         int(dict(list(item.values())[0])["total"])))
                 db.commit()
 
-        # test
-        # print(list(db.execute("select * from commitinfo").fetchall()))
         return jsonify({"status": "OK"})
 
 
@@ -81,15 +67,13 @@ def latest_commit_id():
 
     return jsonify(db.execute("select id from commitinfo order by created_at desc").fetchone()[0])
 
-# 返回最新的n条记录（暂定post的内容有n_commit_info这一条，里面存了记录的数目
-# 返回格式是json（数组）
+
 @app.route("/ncommitinfo", methods=("POST",))
 def get_n_commits():
     db = get_db()
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
@@ -100,9 +84,7 @@ def get_n_commits():
 
         if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < int(n):
             test_info = db.execute("select * from commitinfo").fetchall()
-            print(list(test_info))
             basic_info = db.execute("select * from commitinfo order by created_at desc").fetchall()
-            print(list(basic_info))
 
             return_value = []
             
@@ -146,21 +128,17 @@ def get_n_commits():
             return jsonify(return_value)
 
 
-
-# 找到指定id对应的commit信息。暂定前端post返回json，有commit_id一项
 @app.route("/commitinfo", methods=("GET", "POST"))
 def get_commit_info():
     db = get_db()
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
 
         json = request.get_json()
-        # print(json)
         
         commit_id = json["commit_id"]
         print(commit_id)
