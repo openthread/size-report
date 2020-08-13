@@ -2,53 +2,77 @@ from flask import request
 from flask import jsonify
 from flask import current_app
 from backend.db import *
+from flask import render_template
+from flask import Blueprint
 
-app = current_app
+app = Blueprint("data", __name__)
+
+@app.route('/')
+def index():
+    return render_template("index.html")
+    # return "Hello world"
 
 @app.route("/getcommit", methods=("POST",))
 def retrieve_commit_data():
+    # print("getting commit data")
     db = get_db()
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        charset = request.headers["charset"]
+        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
-        
-        commit = request.get_json()["commits"][0]
-        parent_commit = request.get_json["commits"][1]
-        db.execute("insert into commitinfo value({},{},{})".format(commit["commit_id"], commit["timestamp"], parent_commit["parent_commit_id"]))
+
+        json = request.get_json()
+
+        commit = json["commits"][0]
+        parent_commit = json["commits"][1]
+
+        # print(commit, parent_commit)
+        # print(commit["commit_id"], commit["timestamp"])
+
+        db.execute("insert into commitinfo values('{}','{}','{}');".format(commit["commit_id"], commit["timestamp"], parent_commit["parent_commit_id"]))
+        # print("insert commit info successfully ", db.execute("select * from commitinfo").fetchall()[0])
+
+        # print(commit["code_size"])
 
         for item in commit["code_size"]:
-            db.execute("insert into filechange value({}, {},{},{},{},{})",
-                        commit["commit_id"], 
-                        item.key(), 
-                        int(item.value()["text"]), 
-                        int(item.value()["data"]),
-                        int(item.value()["bss"]),
-                        int(item.value()["total"]))
+            # print(list(item.keys()))
+            # print(dict(list(item.values())[0]))
+            db.execute("insert into filechange values('{}','{}',{},{},{},{});".format
+                        (commit["commit_id"], 
+                        list(item.keys())[0], 
+                        int(dict(list(item.values())[0])["text"]), 
+                        int(dict(list(item.values())[0])["data"]),
+                        int(dict(list(item.values())[0])["bss"]),
+                        int(dict(list(item.values())[0])["total"])))
+
+        print("insert file info into filechange successfully ", db.execute("select * from filechange").fetchall()[0])
 
         # 若此条commit的上一条commit不在数据库中，插入这一条commit的记录。
         if db.execute("select * from commitinfo where id = ?", (parent_commit["parent_commit_id"],), ).fetchall() is None:
-            db.execute("insert into commit info value({},{})".format(parent_commit["parent_commit_id"], parent_commit["parent_timestamp"]))
+            db.execute("insert into commit info values('{}',{});".format(parent_commit["parent_commit_id"], parent_commit["parent_timestamp"]))
 
             for item in parent_commit["parent_code_size"]:
-                db.execute("insert into filechange value({}, {},{},{},{},{})",
-                        parent_commit["parent_commit_id"], 
-                        item.key(), 
-                        int(item.value()["text"]), 
-                        int(item.value()["data"]),
-                        int(item.value()["bss"]),
-                        int(item.value()["total"]))
+                db.execute("insert into filechange values('{}', '{}',{},{},{},{});".format
+                        (parent_commit["parent_commit_id"], 
+                        list(item.keys())[0], 
+                        int(dict(list(item.values())[0])["text"]), 
+                        int(dict(list(item.values())[0])["data"]),
+                        int(dict(list(item.values())[0])["bss"]),
+                        int(dict(list(item.values())[0])["total"])))
+
+        # test
+        # print(db.execute("select * from commitinfo").fetchall())
+        return jsonify({"status": "OK"})
 
 
 @app.route("/latestcommit", methods=("GET",))
 def latest_commit_id():
     db = get_db()
 
-    return db.execute("select id from commitinfo"
-                      "order by timestamp desc").fetchone()["id"]
+    return jsonify(db.execute("select id from commitinfo order by created_at desc").fetchone()["id"])
 
 # 返回最新的n条记录（暂定post的内容有n_commit_info这一条，里面存了记录的数目
 # 返回格式是json（数组）
@@ -58,12 +82,14 @@ def get_n_commits():
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        charset = request.headers["charset"]
+        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
+
+        json = request.get_json()
         
-        n = request.get_json()["n_commit_info"]
+        n = json["n_commit_info"]
 
         if int(db.execute("select count(*) from commitinfo;").fetchall()[0][0]) < n:
             basic_info = db.execute("select * from commitinfo order by create_at desc").fetchall()
@@ -118,12 +144,15 @@ def get_commit_info():
 
     if request.method == "POST":
         content_type = request.headers["Content-type"]
-        charset = request.headers["charset"]
+        # charset = request.headers["charset"]
 
         if content_type != "application/json":
             return
+
+        json = request.get_json()
+        print(json)
         
-        commit_id = request.get_json()["commit_id"]
+        commit_id = json["commit_id"]
 
         basic_info = db.execute("select * from "
                                 "commitinfo where id = ?",
