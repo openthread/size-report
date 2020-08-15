@@ -43,7 +43,7 @@ function sign(n) {
   // Use any middleware
   router.use(require('express').json())
 
-  app.on('push', async context => {
+  app.on('pull_request.merged', async context => {
     // Code was pushed to the repo, log the response
     app.log(context)
     const exec = require('child_process').exec;
