@@ -1,5 +1,8 @@
 # !/usr/bin/python
 # -*- coding:utf8 -*-
+
+#test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
+
 import sys
 import requests
 import os
@@ -78,10 +81,17 @@ with open('/tmp/size_report') as f:
             
         
 
-parent_filechange = {"commit_id":parent_commit_id, "timestamp":parent_commit_timestamp,"code_size":parent_code_size}
+parent_filechange = {"parent_commit_id":parent_commit_id, "'parent_timestamp'":parent_commit_timestamp,"'parent_code_size'":parent_code_size}
 print(parent_filechange) 
 
 filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,"code_size":code_size }
 print(filechange) 
+commits=[]
+commits.append(filechange)
+commits.append(parent_filechange)
+data ={"commits":commits}
 
-#test cmd : python3 main.py https://github.com/chris98122/openthread.git 1 openthread
+# send request
+base_url = ""
+headers= {'Content-type': 'application/json', }
+r = requests.post(base_url+"/commits",data=json.dumps(data), headers=headers)
