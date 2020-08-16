@@ -22,7 +22,9 @@ def create_app(test_config=None):
     from backend import db
     db.init_app(app)
 
-    # TODO: modify this to coordinate with frontend
+    # TODO: modify this to coordinate with frontend (no template so running failed now)
+    from backend import data
+    app.register_blueprint(data.app)
     app.add_url_rule("/", endpoint="index")
 
     return app
