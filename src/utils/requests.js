@@ -23,8 +23,8 @@ async function GetCommitInfo(commit_id) {
 
 async function GetNCommitsInfo(commit_id, num) {
     let data = {
-        commit_id: commit_id,
-        num: num
+        latest_commit_id: commit_id,
+        n_commit_info: num
     };
     let response = await fetch('/ncommitinfo', {
         method: 'POST',
