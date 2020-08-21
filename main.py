@@ -94,4 +94,5 @@ data ={"commits":commits}
 # send request
 base_url = ""
 headers= {'Content-type': 'application/json', }
-r = requests.post(base_url+"/commits",data=json.dumps(data), headers=headers):
+r = requests.post(base_url+"/commits",data=json.dumps(data), headers=headers)
+print(r)
