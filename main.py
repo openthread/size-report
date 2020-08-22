@@ -99,4 +99,4 @@ url = base_url+"/commits"
 r = requests.post(url,
                   data=json.dumps(data),
                   headers={'Content-type': 'application/json; charset=utf-8'})
-print(r.json())
+print(r)
