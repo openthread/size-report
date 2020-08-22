@@ -7,6 +7,7 @@ import sys
 import requests
 import os
 import subprocess
+import json
 print (sys.argv[0])
 clone_url = sys.argv[1]
 #https://github.com/chris98122/openthread.git
