@@ -46,7 +46,7 @@ function sign(n) {
   app.on('pull_request.closed', async context => {
     // Code was pushed to the repo, log the response
     app.log(context)
-    const exec = require('child_process').exec;
+    const execSync = require('child_process').execSync;
 
     var mainPath =  path.join(process.cwd(),'main.py'); 
 
