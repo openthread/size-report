@@ -10,7 +10,7 @@ app = Blueprint("data", __name__)
 # index.html是前端静态页面的名字，也就是webapp的入口点
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template("chart.html")
 
 @app.route("/getcommit", methods=("POST",))
 def retrieve_commit_data():
