@@ -95,6 +95,6 @@ data ={"commits":commits}
 base_url = "https://summer20-sps-50.df.r.appspot.com"
 url = base_url+"/commits"
 r = requests.post(url,
-                  data=text.encode('utf-8'),
+                  data=data.encode('utf-8'),
                   headers={'Content-type': 'application/json; charset=utf-8'})
 print(r.json())
