@@ -36,6 +36,7 @@ export async function GetDataList(commit_id = "", num = 10) {
     }
     result.push(commit_id_);
     result.push(file_use_);
+    return result;
 }
 
 // 返回一个Map，5个key，分别是commit_id、text、bss、data、total
@@ -51,16 +52,15 @@ export async function GetDataListBySummary(commit_id = "", num = 10) {
     var total_ = []
     for (var i = 0; i < len; i++) {
         commit_id_.push(data[i].commit_id);
-        var file_len = data[i].code.length;
         var text_summary = 0;
         var bss_summary = 0;
         var data_summary = 0;
         var total_summary = 0;
-        for (var j = 0; j < file_len; j++) {
-            text_summary = text_summary + data[i].code[j].text;
-            bss_summary = bss_summary + data[i].code[j].bss;
-            data_summary = data_summary + data[i].code[j].data;
-            total_summary = total_summary + data[i].code[j].total;
+        for (var tmp in data[i].code) {
+            text_summary = text_summary + data[i].code[tmp].text;
+            bss_summary = bss_summary + data[i].code[tmp].bss;
+            data_summary = data_summary + data[i].code[tmp].data;
+            total_summary = total_summary + data[i].code[tmp].total;
         }
         text_.push(text_summary);
         bss_.push(bss_summary);
