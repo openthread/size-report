@@ -92,7 +92,7 @@ commits.append(parent_filechange)
 data ={"commits":commits}
 
 # send request
-base_url = ""
+base_url = "https://summer20-sps-50.df.r.appspot.com"
 headers= {'Content-type': 'application/json', }
 r = requests.post(base_url+"/commits",data=json.dumps(data), headers=headers)
 print(r)
