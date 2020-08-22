@@ -60,7 +60,7 @@ function sign(n) {
 
     var args = clone_url +" " + compare_url + " " + repo_name
 
-    exec('python3' + ' '  + mainPath + ' ' + args ,function(error,stdout,stderr){
+    execSync('python3' + ' '  + mainPath + ' ' + args ,function(error,stdout,stderr){
         if(error) {
             console.info('stderr : '+stderr);
         }
