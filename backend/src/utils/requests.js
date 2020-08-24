@@ -2,6 +2,11 @@ async function GetLatestCommit() {
     let response = await fetch('/latestcommit');
     let result = await response.text();
     console.log('GetLatestCommit: ' + result);
+    var l = 0;
+    var r = result.length;
+    while (result[l] == "\"") l = l+1;
+    while (result[r-1] == "\n" || result[r-1]=="\"") r = r-1;
+    result = result.substr(l, r-l);
     return result;
 }
 
