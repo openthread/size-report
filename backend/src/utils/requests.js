@@ -12,7 +12,7 @@ async function GetCommitInfo(commit_id) {
     let response = await fetch('/commitinfo', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     });
@@ -29,7 +29,7 @@ async function GetNCommitsInfo(commit_id, num) {
     let response = await fetch('/ncommitinfo', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     });
