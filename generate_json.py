@@ -13,7 +13,7 @@ if retcode != 0:
 retcode, newest_commit_id = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git rev-parse HEAD") # git 获取最近一次提交的commit id
 print("newest_commit_id is: %s" % newest_commit_id)
 
-retcode, parent_commit_id = subprocess.getstatusoutput(cd ../"+repo_name+ "\n" +"git rev-parse HEAD^")# git 获取parent commit id
+retcode, parent_commit_id = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git rev-parse HEAD^")# git 获取parent commit id
 print("parent_commit_id is: %s" % parent_commit_id)
 
 retcode, newest_commit_timestamp = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git show -s --format=%ci HEAD")
