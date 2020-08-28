@@ -10,18 +10,18 @@ print(output)
 if retcode != 0:
     print("check-size failed")
 
-retcode, newest_commit_id = subprocess.getstatusoutput("git rev-parse HEAD") # git 获取最近一次提交的commit id
+retcode, newest_commit_id = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git rev-parse HEAD") # git 获取最近一次提交的commit id
 print("newest_commit_id is: %s" % newest_commit_id)
 
-retcode, parent_commit_id = subprocess.getstatusoutput("git rev-parse HEAD^")# git 获取parent commit id
+retcode, parent_commit_id = subprocess.getstatusoutput(cd ../"+repo_name+ "\n" +"git rev-parse HEAD^")# git 获取parent commit id
 print("parent_commit_id is: %s" % parent_commit_id)
 
-retcode, newest_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD")
+retcode, newest_commit_timestamp = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git show -s --format=%ci HEAD")
 newest_commit_timestamp = newest_commit_timestamp.split("-0700")[0].strip()
 
 print("newest_commit_timestamp is: %s" % newest_commit_timestamp)
     
-retcode, parent_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD^")
+retcode, parent_commit_timestamp = subprocess.getstatusoutput("cd ../"+repo_name+ "\n" +"git show -s --format=%ci HEAD^")
 parent_commit_timestamp = parent_commit_timestamp.split("-0700")[0].strip()
 print("parent_commit_timestamp is: %s" % parent_commit_timestamp)
 
