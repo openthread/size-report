@@ -4,6 +4,8 @@ import os
 import subprocess
 import json
 
+repo_name = "openthread"
+
 retcode, output = subprocess.getstatusoutput("cd ../" + repo_name + "\n" + " ./script/check-size nrf52840")
 print(output)
 if retcode != 0:
