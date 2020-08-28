@@ -5,7 +5,6 @@ import subprocess
 import json
 
 repo_name = "openthread"
-
 retcode, output = subprocess.getstatusoutput("cd ../" + repo_name + "\n" + " ./script/check-size nrf52840")
 print(output)
 if retcode != 0:
@@ -18,10 +17,12 @@ retcode, parent_commit_id = subprocess.getstatusoutput("git rev-parse HEAD^")# g
 print("parent_commit_id is: %s" % parent_commit_id)
 
 retcode, newest_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD")
+newest_commit_timestamp = newest_commit_timestamp.split("-0700")[0].strip()
 
 print("newest_commit_timestamp is: %s" % newest_commit_timestamp)
     
 retcode, parent_commit_timestamp = subprocess.getstatusoutput("git show -s --format=%ci HEAD^")
+parent_commit_timestamp = parent_commit_timestamp.split("-0700")[0].strip()
 print("parent_commit_timestamp is: %s" % parent_commit_timestamp)
 
 parent_code_size =[]
