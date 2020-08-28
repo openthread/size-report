@@ -47,7 +47,7 @@ with open('/tmp/size_report') as f:
         if (lines.index(line) - 3 ) % 3 == 0 and lines.index(line) != 0:
             code_size.append({filename:{"text":text , "data" :data ,"bss":bss, "total":total }})
             
-parent_filechange = {"parent_commit_id":parent_commit_id, "'parent_timestamp'":parent_commit_timestamp,"'parent_code_size'":parent_code_size}
+parent_filechange = {"parent_commit_id":parent_commit_id, "parent_timestamp":parent_commit_timestamp,"parent_code_size":parent_code_size}
 print(parent_filechange) 
 
 filechange = {"commit_id":newest_commit_id, "timestamp":newest_commit_timestamp,"code_size":code_size }
