@@ -43,10 +43,10 @@ function sign(n) {
   // Use any middleware
   router.use(require('express').json())
 
-  app.on('push', async context => {
+  app.on('pull_request.closed', async context => {
     // Code was pushed to the repo, log the response
     app.log(context)
-    const exec = require('child_process').exec;
+    const execSync = require('child_process').execSync;
 
     var mainPath =  path.join(process.cwd(),'main.py'); 
 
@@ -60,12 +60,12 @@ function sign(n) {
 
     var args = clone_url +" " + compare_url + " " + repo_name
 
-    exec('python3' + ' '  + mainPath + ' ' + args ,function(error,stdout,stderr){
+    execSync('python3' + ' '  + mainPath + ' ' + args ,function(error,stdout,stderr){
         if(error) {
             console.info('stderr : '+stderr);
         }
         console.log('exec: ' + stdout);
     })
-  })
-
+  })  
+ 
 }
