@@ -20,4 +20,4 @@ Contributors are required to abide by our [Code of Conduct](https://github.com/o
 
 ## License
 
-[Apache-2.0](LICENSE) © 2019 OpenThread Authors <openthread-users@googlegroups.com>
+[Apache-2.0](LICENSE) © 2019 OpenThread Authors https://github.com/openthread/openthread/discussions
