@@ -2,7 +2,7 @@
   "name": "size-report",
   "version": "0.1.0",
   "description": "Generate size report for pull request",
-  "author": "OpenThread Authors <openthread-users@googlegroups.com>",
+  "author": "OpenThread Authors (https://github.com/openthread/openthread)",
   "license": "Apache-2.0",
   "repository": "https://github.com/openthread/size-report.git",
   "homepage": "https://github.com/openthread/size-report",
