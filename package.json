@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "ejs": "^3.1.7",
-    "probot": "^12.2.8"
+    "probot": "^12.3.3"
   },
   "devDependencies": {
     "jest": "^29.3.1",
